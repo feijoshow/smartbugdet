@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Calculator | NUST Smart Budget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FFD166;
+            --dark: #292F36;
+            --light: #F7FFF7;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 300;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            perspective: 1000px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px) rotateX(5deg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 0.5rem;
+            font-size: 1.4rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+            background: #f9f9f9;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            grid-column: 1 / -1;
+        }
+        
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        #calculateBtn {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 51, 102, 0.2);
+        }
+        
+        #calculateBtn:hover {
+            background: #002244;
+            transform: translateY(-2px);
+        }
+        
+        .secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+        
+        .secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .tertiary {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        .tertiary:hover {
+            background: #e6b84c;
+        }
+        
+        .floating-icons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            opacity: 0.1;
+            color: var(--primary);
+            font-size: 1.5rem;
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+        
+        /* Custom checkbox for more visual appeal */
+        .toggle-group {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .toggle-option:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .toggle-option:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .toggle-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Real-time summary */
+        .summary-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .summary-chart {
+            height: 200px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* Template selector */
+        .template-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .template-selector select {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* High contrast mode */
+        body.high-contrast {
+            --primary: #000000;
+            --secondary: #333333;
+            --accent: #FFFF00;
+            --dark: #000000;
+            --light: #FFFFFF;
+            background: #FFFFFF;
+        }
+
+        body.high-contrast .section {
+            border: 2px solid #000000;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            --primary: #FF9A3C;
+            --secondary: #4A90E2;
+            --accent: #FFD166;
+            --dark: #F7FFF7;
+            --light: #292F36;
+            background: #1A1E23;
+            color: #F7FFF7;
+        }
+
+        body.dark-mode .section {
+            background: #292F36;
+            color: #F7FFF7;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #1A1E23;
+            color: #F7FFF7;
+            border-color: #555;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .summary-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Budget Calculator</h1>
+        
+        <div class="calculator-grid">
+            <!-- Floating background icons -->
+            <div class="floating-icons">
+                <i class="floating-icon fas fa-wallet" style="top: 10%; left: 5%; animation-delay: 0s;"></i>
+                <i class="floating-icon fas fa-home" style="top: 30%; left: 80%; animation-delay: 2s;"></i>
+                <i class="floating-icon fas fa-bus" style="top: 70%; left: 15%; animation-delay: 4s;"></i>
+                <i class="floating-icon fas fa-utensils" style="top: 50%; left: 90%; animation-delay: 6s;"></i>
+                <i class="floating-icon fas fa-book" style="top: 85%; left: 70%; animation-delay: 8s;"></i>
+            </div>
+            
+            <!-- Budget Name Section -->
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2 class="section-title"><i class="fas fa-file-signature"></i> Budget Details</h2>
+                <div class="template-selector">
+                    <select id="templateSelect" aria-label="Select a budget template">
+                        <option value="">Select a template...</option>
+                    </select>
+                    <button id="saveTemplateBtn" class="tertiary" aria-label="Save current budget as template">
+                        <i class="fas fa-save"></i> Save as Template
+                    </button>
+                </div>
+                <label for="budgetName">Budget Name</label>
+                <input type="text" id="budgetName" placeholder="e.g. January Budget" aria-label="Enter budget name">
+            </div>
+            
+            <!-- Income Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-money-bill-wave"></i> Income Sources</h2>
+                <label for="monthlyAllowance">Monthly Allowance (N$)</label>
+                <input type="number" id="monthlyAllowance" min="0" value="0" placeholder="e.g. 0" aria-label="Monthly allowance amount">
+                
+                <label for="partTimeIncome">Part-time Income (N$)</label>
+                <input type="number" id="partTimeIncome" min="0" value="0" placeholder="e.g. 0" aria-label="Part-time income amount">
+                
+                <label for="otherIncome">Other Income (N$)</label>
+                <input type="number" id="otherIncome" min="0" value="0" placeholder="e.g. 0" aria-label="Other income amount">
+            </div>
+            
+            <!-- Accommodation Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-home"></i> Accommodation</h2>
+                <label for="accommodationType">Accommodation Type</label>
+                <select id="accommodationType" aria-label="Select accommodation type">
+                    <option value="onCampus">On-Campus Residence</option>
+                    <option value="offCampus">Off-Campus Rental</option>
+                    <option value="atHome">Living at Home</option>
+                </select>
+                
+                <div id="accommodationCostFields">
+                    <label for="rent">Monthly Rent (N$)</label>
+                    <input type="number" id="rent" min="0" value="0" aria-label="Monthly rent amount">
+                    
+                    <label for="utilities">Utilities (N$)</label>
+                    <input type="number" id="utilities" min="0" value="0" aria-label="Utilities cost">
+                </div>
+            </div>
+            
+            <!-- Transportation Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-car"></i> Transportation</h2>
+                <label for="transportType">Transport Method</label>
+                <select id="transportType" aria-label="Select transportation method">
+                    <option value="taxi">Taxi</option>
+                    <option value="bus">Bus</option>
+                    <option value="walking">Walking</option>
+                    <option value="ownCar">Own Car</option>
+                </select>
+                
+                <div id="transportCostFields">
+                    <label for="weeklyTrips">Weekly Trips</label>
+                    <input type="number" id="weeklyTrips" min="0" value="0" aria-label="Number of weekly trips">
+                    
+                    <label for="costPerTrip">Cost per Trip (N$)</label>
+                    <input type="number" id="costPerTrip" min="0" value="0" step="0.5" aria-label="Cost per trip">
+                    
+                    <div id="carFields" style="display: none;">
+                        <label for="fuelCost">Fuel Cost (N$)</label>
+                        <input type="number" id="fuelCost" min="0" value="0" aria-label="Monthly fuel cost">
+                        
+                        <label for="carMaintenance">Maintenance (N$)</label>
+                        <input type="number" id="carMaintenance" min="0" value="0" aria-label="Monthly car maintenance cost">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Food Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-utensils"></i> Food & Groceries</h2>
+                <label for="eatingHabits">Eating Habits</label>
+                <div class="toggle-group" role="radiogroup" aria-labelledby="eatingHabitsLabel">
+                    <div class="toggle-option" data-value="cooking" role="radio" aria-checked="false" tabindex="0">Cook</div>
+                    <div class="toggle-option active" data-value="mixed" role="radio" aria-checked="true" tabindex="0">Mixed</div>
+                    <div class="toggle-option" data-value="eatingOut" role="radio" aria-checked="false" tabindex="0">Eat Out</div>
+                </div>
+                <select id="eatingHabits" style="display: none;" aria-hidden="true">
+                    <option value="cooking">Mostly Cook at Home</option>
+                    <option value="mixed" selected>Mix of Cooking and Eating Out</option>
+                    <option value="eatingOut">Mostly Eat Out</option>
+                </select>
+                
+                <label for="weeklyGroceries">Weekly Groceries (N$)</label>
+                <input type="number" id="weeklyGroceries" min="0" value="0" aria-label="Weekly groceries cost">
+                
+                <label for="weeklyEatingOut">Weekly Eating Out (N$)</label>
+                <input type="number" id="weeklyEatingOut" min="0" value="0" aria-label="Weekly eating out cost">
+            </div>
+            
+            <!-- Study Expenses -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-book"></i> Study Expenses</h2>
+                <label for="booksSupplies">Books & Supplies (N$)</label>
+                <input type="number" id="booksSupplies" min="0" value="0" aria-label="Books and supplies cost">
+                
+                <label for="printingCosts">Printing & Stationery (N$)</label>
+                <input type="number" id="printingCosts" min="0" value="0" aria-label="Printing and stationery cost">
+            </div>
+            
+            <!-- Personal Expenses -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-mobile-alt"></i> Personal Expenses</h2>
+                <label for="phoneData">Phone & Data (N$)</label>
+                <input type="number" id="phoneData" min="0" value="0" aria-label="Phone and data cost">
+                
+                <label for="entertainment">Entertainment (N$)</label>
+                <input type="number" id="entertainment" min="0" value="0" aria-label="Entertainment cost">
+            </div>
+
+            <!-- Real-time Summary Section -->
+            <div class="summary-section">
+                <h2 class="section-title"><i class="fas fa-chart-pie"></i> Budget Summary</h2>
+                <div class="summary-row">
+                    <span class="summary-label">Total Income:</span>
+                    <span class="summary-value" id="summaryIncome">N$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Expenses:</span>
+                    <span class="summary-value" id="summaryExpenses">N$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Monthly Balance:</span>
+                    <span class="summary-value" id="summaryBalance">N$0.00</span>
+                </div>
+                <div class="summary-chart">
+                    <canvas id="expenseChart" aria-label="Expense breakdown chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="nav-buttons">
+                <button class="secondary" onclick="window.location.href='index.html'">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button class="secondary" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button id="calculateBtn">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+                <button id="saveBtn" class="tertiary" style="display:none;">
+                    <i class="fas fa-save"></i> Save Budget
+                </button>
+                <button id="accessibilityBtn" class="secondary">
+                    <i class="fas fa-universal-access"></i> Accessibility
+                </button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/budgetStorage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize expense chart
+            const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+            const expenseChart = new Chart(expenseCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Accommodation', 'Transportation', 'Food', 'Study', 'Personal'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#FF6B35',
+                            '#004E89',
+                            '#FFD166',
+                            '#292F36',
+                            '#06D6A0'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20,
+                                font: {
+                                    family: 'Poppins',
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: N$${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Dynamic fields
+            const accommodationType = document.getElementById('accommodationType');
+            const transportType = document.getElementById('transportType');
+            
+            // Toggle group for eating habits
+            const toggleOptions = document.querySelectorAll('.toggle-option');
+            const eatingHabitsSelect = document.getElementById('eatingHabits');
+            
+            // Accessibility menu
+            const accessibilityBtn = document.getElementById('accessibilityBtn');
+            let accessibilityMenu = null;
+            
+            // Load templates
+            loadTemplates();
+            
+            // Set up event listeners for real-time calculations
+            setupInputListeners();
+            
+            toggleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    toggleOptions.forEach(opt => {
+                        opt.classList.remove('active');
+                        opt.setAttribute('aria-checked', 'false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-checked', 'true');
+                    
+                    // Update the hidden select element
+                    const value = this.getAttribute('data-value');
+                    eatingHabitsSelect.value = value;
+                    updateCalculations();
+                });
+                
+                // Add keyboard support for toggle options
+                option.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+            
+            accommodationType.addEventListener('change', function() {
+                const rent = document.getElementById('rent');
+                const utilities = document.getElementById('utilities');
+                
+                if (this.value === 'onCampus') {
+                    rent.value = '0';
+                    utilities.value = '0';
+                } else if (this.value === 'offCampus') {
+                    rent.value = '0';
+                    utilities.value = '0';
+                } else {
+                    rent.value = '0';
+                    utilities.value = '0';
+                }
+                updateCalculations();
+            });
+            
+            transportType.addEventListener('change', function() {
+                const carFields = document.getElementById('carFields');
+                const costPerTrip = document.getElementById('costPerTrip');
+                
+                if (this.value === 'taxi') {
+                    costPerTrip.value = '0';
+                    carFields.style.display = 'none';
+                } else if (this.value === 'bus') {
+                    costPerTrip.value = '0';
+                    carFields.style.display = 'none';
+                } else if (this.value === 'ownCar') {
+                    costPerTrip.value = '0';
+                    carFields.style.display = 'block';
+                } else {
+                    costPerTrip.value = '0';
+                    carFields.style.display = 'none';
+                }
+                updateCalculations();
+            });
+            
+            // Template selector
+            document.getElementById('templateSelect').addEventListener('change', function() {
+                if (this.value) {
+                    loadTemplate(this.value);
+                }
+            });
+            
+            // Save template button
+            document.getElementById('saveTemplateBtn').addEventListener('click', function() {
+                const templateName = prompt('Enter a name for this template:');
+                if (templateName) {
+                    const templateData = getCurrentBudgetData();
+                    saveBudgetTemplate(templateName, templateData);
+                    loadTemplates();
+                    alert(`Template "${templateName}" saved successfully!`);
+                }
+            });
+            
+            // Calculate button
+            document.getElementById('calculateBtn').addEventListener('click', function() {
+                // Add animation to button
+                const calculateBtn = this;
+                calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+                calculateBtn.disabled = true;
+                
+                // Calculate immediately (no setTimeout delay)
+                try {
+                    const budgetData = calculateBudget();
+                    
+                    // Store results in localStorage to pass to results page
+                    localStorage.setItem('budgetResults', JSON.stringify(budgetData));
+                    
+                    // Save to history
+                    saveBudgetToHistory(budgetData);
+                    
+                    // Show save button
+                    document.getElementById('saveBtn').style.display = 'block';
+                    
+                    // Immediately redirect to results page
+                    window.location.href = 'results.html';
+                } catch (error) {
+                    console.error("Calculation error:", error);
+                    // Reset button if error occurs
+                    calculateBtn.innerHTML = '<i class="fas fa-calculator"></i> Calculate';
+                    calculateBtn.disabled = false;
+                    alert("Error calculating budget. Please check your inputs.");
+                }
+            });
+
+            // Save button
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-save"></i> Save Budget';
+                }, 2000);
+            });
+            
+            // Accessibility button
+            accessibilityBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                if (accessibilityMenu) {
+                    accessibilityMenu.remove();
+                    accessibilityMenu = null;
+                    return;
+                }
+                
+                accessibilityMenu = document.createElement('div');
+                accessibilityMenu.style.position = 'absolute';
+                accessibilityMenu.style.bottom = '60px';
+                accessibilityMenu.style.right = '0';
+                accessibilityMenu.style.backgroundColor = 'white';
+                accessibilityMenu.style.borderRadius = '8px';
+                accessibilityMenu.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+                accessibilityMenu.style.padding = '1rem';
+                accessibilityMenu.style.zIndex = '1000';
+                accessibilityMenu.style.width = '250px';
+                
+                accessibilityMenu.innerHTML = `
+                    <h3 style="margin-bottom: 1rem; font-size: 1rem;">Accessibility Options</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <button id="highContrastBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Toggle High Contrast
+                        </button>
+                        <button id="darkModeBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Toggle Dark Mode
+                        </button>
+                        <button id="increaseFontBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Increase Font Size
+                        </button>
+                        <button id="decreaseFontBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Decrease Font Size
+                        </button>
+                        <button id="resetAccessibilityBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Reset All
+                        </button>
+                    </div>
+                `;
+                
+                this.parentNode.appendChild(accessibilityMenu);
+                
+                // Set up accessibility menu buttons
+                document.getElementById('highContrastBtn').addEventListener('click', function() {
+                    document.body.classList.toggle('high-contrast');
+                });
+                
+                document.getElementById('darkModeBtn').addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                });
+                
+                document.getElementById('increaseFontBtn').addEventListener('click', function() {
+                    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+                    document.body.style.fontSize = `${currentSize * 1.1}px`;
+                });
+                
+                document.getElementById('decreaseFontBtn').addEventListener('click', function() {
+                    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+                    document.body.style.fontSize = `${currentSize * 0.9}px`;
+                });
+                
+                document.getElementById('resetAccessibilityBtn').addEventListener('click', function() {
+                    document.body.className = '';
+                    document.body.style.fontSize = '';
+                });
+            });
+            
+            // Close accessibility menu when clicking elsewhere
+            document.addEventListener('click', function() {
+                if (accessibilityMenu) {
+                    accessibilityMenu.remove();
+                    accessibilityMenu = null;
+                }
+            });
+            
+            // Initial calculation
+            updateCalculations();
+            
+            function setupInputListeners() {
+                const inputs = document.querySelectorAll('input[type="number"], input[type="text"], select');
+                inputs.forEach(input => {
+                    input.addEventListener('input', updateCalculations);
+                    input.addEventListener('change', updateCalculations);
+                });
+            }
+            
+            function updateCalculations() {
+                const budgetData = calculateBudget();
+                
+                // Update summary
+                document.getElementById('summaryIncome').textContent = `N$${budgetData.totalIncome.toFixed(2)}`;
+                document.getElementById('summaryExpenses').textContent = `N$${budgetData.totalExpenses.toFixed(2)}`;
+                document.getElementById('summaryBalance').textContent = `N$${budgetData.monthlyBalance.toFixed(2)}`;
+                
+                // Update chart
+                expenseChart.data.datasets[0].data = [
+                    budgetData.accommodationTotal,
+                    budgetData.transportTotal,
+                    budgetData.foodTotal,
+                    budgetData.studyTotal,
+                    budgetData.personalTotal
+                ];
+                expenseChart.update();
+                
+                // Update balance color
+                const balanceElement = document.getElementById('summaryBalance');
+                balanceElement.className = 'summary-value';
+                if (budgetData.monthlyBalance > 0) {
+                    balanceElement.classList.add('savings');
+                } else if (budgetData.monthlyBalance < 0) {
+                    balanceElement.classList.add('deficit');
+                }
+            }
+            
+            function calculateBudget() {
+                // Get budget name
+                const budgetName = document.getElementById('budgetName').value || 'Unnamed Budget';
+                
+                // Calculate all values
+                const monthlyAllowance = parseFloat(document.getElementById('monthlyAllowance').value) || 0;
+                const partTimeIncome = parseFloat(document.getElementById('partTimeIncome').value) || 0;
+                const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
+                const totalIncome = monthlyAllowance + partTimeIncome + otherIncome;
+                
+                const rent = parseFloat(document.getElementById('rent').value) || 0;
+                const utilities = parseFloat(document.getElementById('utilities').value) || 0;
+                const accommodationTotal = rent + utilities;
+                
+                let transportTotal = 0;
+                if (transportType.value === 'taxi' || transportType.value === 'bus') {
+                    const weeklyTrips = parseFloat(document.getElementById('weeklyTrips').value) || 0;
+                    const costPerTrip = parseFloat(document.getElementById('costPerTrip').value) || 0;
+                    transportTotal = weeklyTrips * costPerTrip * 4;
+                } else if (transportType.value === 'ownCar') {
+                    transportTotal = (parseFloat(document.getElementById('fuelCost').value) || 0) + 
+                                   (parseFloat(document.getElementById('carMaintenance').value) || 0);
+                }
+                
+                const foodTotal = ((parseFloat(document.getElementById('weeklyGroceries').value) || 0) + 
+                                  (parseFloat(document.getElementById('weeklyEatingOut').value) || 0)) * 4;
+                
+                const studyTotal = (parseFloat(document.getElementById('booksSupplies').value) || 0) + 
+                                 (parseFloat(document.getElementById('printingCosts').value) || 0);
+                
+                const personalTotal = (parseFloat(document.getElementById('phoneData').value) || 0) + 
+                                    (parseFloat(document.getElementById('entertainment').value) || 0);
+                
+                const totalExpenses = accommodationTotal + transportTotal + foodTotal + studyTotal + personalTotal;
+                const monthlyBalance = totalIncome - totalExpenses;
+                
+                return {
+                    name: budgetName,
+                    totalIncome,
+                    totalExpenses,
+                    monthlyBalance,
+                    accommodationTotal,
+                    transportTotal,
+                    foodTotal,
+                    studyTotal,
+                    personalTotal,
+                    date: new Date().toISOString()
+                };
+            }
+            
+            function getCurrentBudgetData() {
+                return {
+                    name: document.getElementById('budgetName').value || '',
+                    monthlyAllowance: parseFloat(document.getElementById('monthlyAllowance').value) || 0,
+                    partTimeIncome: parseFloat(document.getElementById('partTimeIncome').value) || 0,
+                    otherIncome: parseFloat(document.getElementById('otherIncome').value) || 0,
+                    accommodationType: document.getElementById('accommodationType').value,
+                    rent: parseFloat(document.getElementById('rent').value) || 0,
+                    utilities: parseFloat(document.getElementById('utilities').value) || 0,
+                    transportType: document.getElementById('transportType').value,
+                    weeklyTrips: parseFloat(document.getElementById('weeklyTrips').value) || 0,
+                    costPerTrip: parseFloat(document.getElementById('costPerTrip').value) || 0,
+                    fuelCost: parseFloat(document.getElementById('fuelCost').value) || 0,
+                    carMaintenance: parseFloat(document.getElementById('carMaintenance').value) || 0,
+                    eatingHabits: document.getElementById('eatingHabits').value,
+                    weeklyGroceries: parseFloat(document.getElementById('weeklyGroceries').value) || 0,
+                    weeklyEatingOut: parseFloat(document.getElementById('weeklyEatingOut').value) || 0,
+                    booksSupplies: parseFloat(document.getElementById('booksSupplies').value) || 0,
+                    printingCosts: parseFloat(document.getElementById('printingCosts').value) || 0,
+                    phoneData: parseFloat(document.getElementById('phoneData').value) || 0,
+                    entertainment: parseFloat(document.getElementById('entertainment').value) || 0
+                };
+            }
+            
+            function loadTemplate(templateName) {
+                const template = getBudgetTemplate(templateName);
+                if (!template) return;
+                
+                // Set all the form values from the template
+                document.getElementById('budgetName').value = template.name;
+                document.getElementById('monthlyAllowance').value = template.monthlyAllowance;
+                document.getElementById('partTimeIncome').value = template.partTimeIncome;
+                document.getElementById('otherIncome').value = template.otherIncome;
+                document.getElementById('accommodationType').value = template.accommodationType;
+                document.getElementById('rent').value = template.rent;
+                document.getElementById('utilities').value = template.utilities;
+                document.getElementById('transportType').value = template.transportType;
+                document.getElementById('weeklyTrips').value = template.weeklyTrips;
+                document.getElementById('costPerTrip').value = template.costPerTrip;
+                document.getElementById('fuelCost').value = template.fuelCost;
+                document.getElementById('carMaintenance').value = template.carMaintenance;
+                document.getElementById('eatingHabits').value = template.eatingHabits;
+                document.getElementById('weeklyGroceries').value = template.weeklyGroceries;
+                document.getElementById('weeklyEatingOut').value = template.weeklyEatingOut;
+                document.getElementById('booksSupplies').value = template.booksSupplies;
+                document.getElementById('printingCosts').value = template.printingCosts;
+                document.getElementById('phoneData').value = template.phoneData;
+                document.getElementById('entertainment').value = template.entertainment;
+                
+                // Update toggle group
+                toggleOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    opt.setAttribute('aria-checked', 'false');
+                });
+                
+                const activeOption = document.querySelector(`.toggle-option[data-value="${template.eatingHabits}"]`);
+                if (activeOption) {
+                    activeOption.classList.add('active');
+                    activeOption.setAttribute('aria-checked', 'true');
+                }
+                
+                // Trigger accommodation and transport type changes
+                document.getElementById('accommodationType').dispatchEvent(new Event('change'));
+                document.getElementById('transportType').dispatchEvent(new Event('change'));
+                
+                updateCalculations();
+            }
+            
+            function loadTemplates() {
+                const templateSelect = document.getElementById('templateSelect');
+                templateSelect.innerHTML = '<option value="">Select a template...</option>';
+                
+                const templates = getAllTemplates();
+                for (const [name, template] of Object.entries(templates)) {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    templateSelect.appendChild(option);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

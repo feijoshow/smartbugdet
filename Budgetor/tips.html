@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saving Tips | NUST Smart Budget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FFD166;
+            --dark: #292F36;
+            --light: #F7FFF7;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 i {
+            margin-right: 0.8rem;
+        }
+        
+        .tip-category {
+            margin-bottom: 2rem;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .tip-category h2 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .tip-category h2 i {
+            margin-right: 0.8rem;
+        }
+        
+        .tip-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .tip-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .tip-card h3 {
+            color: var(--primary);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tip-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+        
+        .tip-card p {
+            margin-top: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #e05a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-lightbulb"></i> Student Saving Tips</h1>
+        
+        <div class="tip-category" style="animation-delay: 0.1s">
+            <h2><i class="fas fa-utensils"></i> Food Savings</h2>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-people-carry tip-icon"></i> Meal Sharing</h3>
+                <p>Partner with 2-3 friends to cook and share meals. Cooking larger portions together can save up to 40% on food costs compared to eating out individually. Rotate cooking responsibilities to share the workload.</p>
+            </div>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-shopping-basket tip-icon"></i> Smart Grocery Shopping</h3>
+                <p>Shop at Windhoek's most affordable supermarkets (Checkers & Usave) on Wednesday afternoons when student discounts are often available. Plan meals around weekly specials and buy non-perishables in bulk.</p>
+            </div>
+        </div>
+        
+        <div class="tip-category" style="animation-delay: 0.2s">
+            <h2><i class="fas fa-bus"></i> Transport Savings</h2>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-users tip-icon"></i> Carpool Schedule</h3>
+                <p>Use the NUST Student Facebook group to arrange regular carpools with students living in your area. Typical savings range from N$200-400/month compared to using taxis or driving alone. Create a WhatsApp group for your regular carpool team.</p>
+            </div>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-bicycle tip-icon"></i> Alternative Transport</h3>
+                <p>Consider walking or cycling for short distances around campus. NUST's compact layout makes this practical, and you'll save money while getting exercise. Invest in a good bike lock if you choose to cycle.</p>
+            </div>
+        </div>
+        
+        <div class="tip-category" style="animation-delay: 0.3s">
+            <h2><i class="fas fa-book"></i> Study Savings</h2>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-exchange-alt tip-icon"></i> Textbook Exchange</h3>
+                <p>The NUST library maintains a textbook exchange board where students can buy/sell used books at 50-70% off new prices. Check with your department for subject-specific exchange programs and always ask seniors if they have books to sell or lend.</p>
+            </div>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-print tip-icon"></i> Smart Printing</h3>
+                <p>Use the NUST library printers instead of commercial shops (saves ~N$0.50/page). Print double-sided whenever possible. Save documents to USB and print multiple items together to minimize trips. Use "draft" mode for personal copies.</p>
+            </div>
+        </div>
+        
+        <div class="tip-category" style="animation-delay: 0.4s">
+            <h2><i class="fas fa-gem"></i> Lifestyle Savings</h2>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-mobile-alt tip-icon"></i> Student Mobile Plans</h3>
+                <p>Switch to a student mobile plan (MTC's Student Bundle or TN Mobile's Student Offer) to save 20-30% on data costs. Use campus WiFi whenever possible and download lecture materials while connected to save mobile data.</p>
+            </div>
+            
+            <div class="tip-card">
+                <h3><i class="fas fa-tags tip-icon"></i> Student Discounts</h3>
+                <p>Always ask about student discounts - many Windhoek businesses offer 10-20% off for students (cinemas, restaurants, tech stores). Carry your student ID at all times. Check the NUST student portal for exclusive discount codes.</p>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+        </div>
+    </div>
+</body>
+</html>

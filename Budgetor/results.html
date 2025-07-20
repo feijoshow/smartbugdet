@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Results | NUST Smart Budget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FFD166;
+            --dark: #292F36;
+            --light: #F7FFF7;
+            --success: #06D6A0;
+            --warning: #EF476F;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            margin: 0.8rem auto;
+            border-radius: 2px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+        
+        .result-item .label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .result-item .value {
+            font-weight: 600;
+        }
+        
+        .total-card {
+            grid-column: 1 / -1;
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .total-card .label {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .total-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .savings {
+            color: var(--success);
+        }
+        
+        .deficit {
+            color: var(--warning);
+        }
+        
+        .feedback-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--accent);
+            animation: slideIn 0.6s ease-out 0.3s both;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .good-icon {
+            background: rgba(6, 214, 160, 0.1);
+            color: var(--success);
+        }
+        
+        .bad-icon {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--warning);
+        }
+        
+        .feedback-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .good-title {
+            color: var(--success);
+        }
+        
+        .bad-title {
+            color: var(--warning);
+        }
+        
+        .feedback-message {
+            margin-top: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .goal-section {
+            background: rgba(0, 78, 137, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--secondary);
+            animation: slideIn 0.6s ease-out 0.4s both;
+        }
+        
+        .goal-input {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .goal-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .goal-input button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .goal-input button:hover {
+            background: #003366;
+        }
+        
+        .tips-section {
+            background: rgba(255, 209, 102, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-left: 4px solid var(--accent);
+            animation: slideIn 0.6s ease-out 0.4s both;
+        }
+        
+        .tips-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tips-title i {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+        
+        .tips-list {
+            padding-left: 1.2rem;
+        }
+        
+        .tips-list li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            animation: fadeIn 0.6s ease-out 0.5s both;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #e05a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+        
+        .floating-icons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            opacity: 0.1;
+            color: var(--primary);
+            font-size: 1.5rem;
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* Chart container */
+        .chart-container {
+            margin: 2rem 0;
+            height: 300px;
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* High contrast mode */
+        body.high-contrast {
+            --primary: #000000;
+            --secondary: #333333;
+            --accent: #FFFF00;
+            --dark: #000000;
+            --light: #FFFFFF;
+            background: #FFFFFF;
+        }
+
+        body.high-contrast .section {
+            border: 2px solid #000000;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            --primary: #FF9A3C;
+            --secondary: #4A90E2;
+            --accent: #FFD166;
+            --dark: #F7FFF7;
+            --light: #292F36;
+            background: #1A1E23;
+            color: #F7FFF7;
+        }
+
+        body.dark-mode .section {
+            background: #292F36;
+            color: #F7FFF7;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #1A1E23;
+            color: #F7FFF7;
+            border-color: #555;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .goal-input {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="floating-icons" id="floatingIcons"></div>
+        
+        <h1>Your Budget Results</h1>
+        
+        <div class="results-grid">
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="label">Monthly Income:</span>
+                    <span class="value" id="totalIncome">N$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Monthly Expenses:</span>
+                    <span class="value" id="totalExpenses">N$0.00</span>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="label">Accommodation:</span>
+                    <span class="value" id="accomTotal">N$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Transportation:</span>
+                    <span class="value" id="transportTotal">N$0.00</span>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="label">Food & Groceries:</span>
+                    <span class="value" id="foodTotal">N$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Study Expenses:</span>
+                    <span class="value" id="studyTotal">N$0.00</span>
+                </div>
+            </div>
+            
+            <div class="total-card">
+                <span class="label">Monthly Balance:</span>
+                <span class="value" id="monthlyBalance">N$0.00</span>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="resultsChart" aria-label="Budget breakdown chart"></canvas>
+        </div>
+        
+        <div id="feedback" class="feedback-section">
+            <div class="feedback-header">
+                <div id="feedbackIcon" class="feedback-icon">
+                    <i class="fas fa-question"></i>
+                </div>
+                <h2 id="feedbackTitle" class="feedback-title">Budget Analysis</h2>
+            </div>
+            <div id="feedbackMessage" class="feedback-message"></div>
+        </div>
+        
+        <div class="goal-section" id="goalSection">
+            <h2><i class="fas fa-bullseye"></i> Set Savings Goal for <span id="budgetNameDisplay"></span></h2>
+            <p>Set a monthly savings target to track your progress:</p>
+            <div class="goal-input">
+                <input type="number" id="goalAmount" placeholder="N$ Target Amount" aria-label="Enter savings goal amount">
+                <button id="setGoalBtn" aria-label="Set savings goal">Set Goal</button>
+            </div>
+        </div>
+        
+        <div id="tips" class="tips-section">
+            <h3 class="tips-title"><i class="fas fa-lightbulb"></i> Budget Tips</h3>
+            <div id="tipsContent" class="tips-list"></div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="window.location.href='calculator.html'" aria-label="Recalculate budget">
+                <i class="fas fa-calculator"></i> Recalculate
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'" aria-label="Go to dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button id="accessibilityBtn" class="btn btn-secondary" aria-label="Accessibility options">
+                <i class="fas fa-universal-access"></i> Accessibility
+            </button>
+        </div>
+    </div>
+
+    <script src="scripts/budgetStorage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create floating icons
+            const floatingIcons = document.getElementById('floatingIcons');
+            const icons = ['fa-wallet', 'fa-home', 'fa-bus', 'fa-utensils', 'fa-book'];
+            
+            for (let i = 0; i < 8; i++) {
+                const icon = document.createElement('i');
+                icon.className = `floating-icon fas ${icons[i % icons.length]}`;
+                icon.style.left = `${Math.random() * 100}%`;
+                icon.style.top = `${Math.random() * 100}%`;
+                icon.style.animationDelay = `${Math.random() * 10}s`;
+                icon.style.animationDuration = `${10 + Math.random() * 20}s`;
+                floatingIcons.appendChild(icon);
+            }
+            
+            // Get results from localStorage
+            const results = JSON.parse(localStorage.getItem('budgetResults'));
+            
+            if (!results) {
+                window.location.href = 'calculator.html';
+                return;
+            }
+            
+            // Display budget name
+            document.getElementById('budgetNameDisplay').textContent = results.name || 'This Budget';
+            
+            // Initialize chart
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            const budgetChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Income', 'Expenses', 'Balance'],
+                    datasets: [{
+                        label: 'Amount (N$)',
+                        data: [
+                            results.totalIncome,
+                            results.totalExpenses,
+                            results.monthlyBalance
+                        ],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            results.monthlyBalance >= 0 ? 'rgba(75, 192, 192, 0.7)' : 'rgba(255, 99, 132, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            results.monthlyBalance >= 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'N$' + value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'N$' + context.raw.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Display results with animation
+            setTimeout(() => {
+                document.getElementById('totalIncome').textContent = `N$${results.totalIncome.toFixed(2)}`;
+                document.getElementById('totalExpenses').textContent = `N$${results.totalExpenses.toFixed(2)}`;
+                document.getElementById('monthlyBalance').textContent = `N$${results.monthlyBalance.toFixed(2)}`;
+                document.getElementById('accomTotal').textContent = `N$${results.accommodationTotal.toFixed(2)}`;
+                document.getElementById('transportTotal').textContent = `N$${results.transportTotal.toFixed(2)}`;
+                document.getElementById('foodTotal').textContent = `N$${results.foodTotal.toFixed(2)}`;
+                document.getElementById('studyTotal').textContent = `N$${results.studyTotal.toFixed(2)}`;
+                
+                // Style balance
+                const balanceElement = document.getElementById('monthlyBalance');
+                if (results.monthlyBalance >= 0) {
+                    balanceElement.classList.add('savings');
+                    showPositiveFeedback(results);
+                } else {
+                    balanceElement.classList.add('deficit');
+                    showNegativeFeedback(results);
+                }
+            }, 300);
+
+            // Set goal button
+            document.getElementById('setGoalBtn').addEventListener('click', function() {
+                const goalAmount = parseFloat(document.getElementById('goalAmount').value);
+                if (goalAmount && goalAmount > 0) {
+                    const results = JSON.parse(localStorage.getItem('budgetResults'));
+                    setSavingsGoal(goalAmount, results.name);
+                    this.innerHTML = '<i class="fas fa-check"></i> Goal Set!';
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                }
+            });
+
+            // Accessibility button
+            const accessibilityBtn = document.getElementById('accessibilityBtn');
+            let accessibilityMenu = null;
+            
+            accessibilityBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                if (accessibilityMenu) {
+                    accessibilityMenu.remove();
+                    accessibilityMenu = null;
+                    return;
+                }
+                
+                accessibilityMenu = document.createElement('div');
+                accessibilityMenu.style.position = 'absolute';
+                accessibilityMenu.style.bottom = '60px';
+                accessibilityMenu.style.right = '0';
+                accessibilityMenu.style.backgroundColor = 'white';
+                accessibilityMenu.style.borderRadius = '8px';
+                accessibilityMenu.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+                accessibilityMenu.style.padding = '1rem';
+                accessibilityMenu.style.zIndex = '1000';
+                accessibilityMenu.style.width = '250px';
+                
+                accessibilityMenu.innerHTML = `
+                    <h3 style="margin-bottom: 1rem; font-size: 1rem;">Accessibility Options</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <button id="highContrastBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Toggle High Contrast
+                        </button>
+                        <button id="darkModeBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Toggle Dark Mode
+                        </button>
+                        <button id="increaseFontBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Increase Font Size
+                        </button>
+                        <button id="decreaseFontBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Decrease Font Size
+                        </button>
+                        <button id="resetAccessibilityBtn" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: left;">
+                            Reset All
+                        </button>
+                    </div>
+                `;
+                
+                this.parentNode.appendChild(accessibilityMenu);
+                
+                // Set up accessibility menu buttons
+                document.getElementById('highContrastBtn').addEventListener('click', function() {
+                    document.body.classList.toggle('high-contrast');
+                });
+                
+                document.getElementById('darkModeBtn').addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                });
+                
+                document.getElementById('increaseFontBtn').addEventListener('click', function() {
+                    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+                    document.body.style.fontSize = `${currentSize * 1.1}px`;
+                });
+                
+                document.getElementById('decreaseFontBtn').addEventListener('click', function() {
+                    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+                    document.body.style.fontSize = `${currentSize * 0.9}px`;
+                });
+                
+                document.getElementById('resetAccessibilityBtn').addEventListener('click', function() {
+                    document.body.className = '';
+                    document.body.style.fontSize = '';
+                });
+            });
+            
+            // Close accessibility menu when clicking elsewhere
+            document.addEventListener('click', function() {
+                if (accessibilityMenu) {
+                    accessibilityMenu.remove();
+                    accessibilityMenu = null;
+                }
+            });
+        });
+        
+        function showPositiveFeedback(results) {
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const tipsContent = document.getElementById('tipsContent');
+            
+            feedbackIcon.innerHTML = '<i class="fas fa-check"></i>';
+            feedbackIcon.classList.add('good-icon');
+            feedbackTitle.classList.add('good-title');
+            feedbackTitle.textContent = 'Great Budgeting!';
+            
+            feedbackMessage.innerHTML = `
+                <p>You're managing your finances well with a monthly surplus of <strong>N$${results.monthlyBalance.toFixed(2)}</strong>.</p>
+                <p>This means you're living within your means and have money left over to save or invest.</p>
+            `;
+            
+            tipsContent.innerHTML = `
+                <ul>
+                    <li><strong>Emergency Fund:</strong> Consider setting aside 10% of your surplus (N$${(results.monthlyBalance * 0.1).toFixed(2)}) each month for emergencies</li>
+                    <li><strong>Student Investments:</strong> Look into low-risk investment options with as little as N$100</li>
+                    <li><strong>Savings Goals:</strong> Create specific savings goals for things like textbooks or a laptop</li>
+                    <li><strong>Discounts:</strong> Explore student discounts you might not be using for transport, software, and entertainment</li>
+                </ul>
+            `;
+        }
+        
+        function showNegativeFeedback(results) {
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const tipsContent = document.getElementById('tipsContent');
+            
+            feedbackIcon.innerHTML = '<i class="fas fa-exclamation"></i>';
+            feedbackIcon.classList.add('bad-icon');
+            feedbackTitle.classList.add('bad-title');
+            feedbackTitle.textContent = 'Budget Warning';
+            
+            const deficit = Math.abs(results.monthlyBalance);
+            feedbackMessage.innerHTML = `
+                <p>You're spending <strong>N$${deficit.toFixed(2)}</strong> more than you earn each month.</p>
+                <p>This deficit means you'll need to either increase your income or reduce expenses to avoid financial stress.</p>
+            `;
+            
+            let tips = '<ul>';
+            
+            if (results.accommodationTotal > 4000) {
+                tips += `<li><strong>Housing:</strong> Consider finding roommates to split your N$${results.accommodationTotal.toFixed(2)} accommodation costs</li>`;
+            }
+            
+            if (results.transportTotal > 500) {
+                tips += `<li><strong>Transport:</strong> Carpooling or using the bus could reduce your N$${results.transportTotal.toFixed(2)} transport costs</li>`;
+            }
+            
+            if (results.foodTotal > 1500) {
+                tips += `<li><strong>Food:</strong> Meal planning could save you 20-30% on your N$${results.foodTotal.toFixed(2)} food budget</li>`;
+            }
+            
+            tips += `
+                <li><strong>Income:</strong> Look for part-time work or freelance opportunities to increase your income</li>
+                <li><strong>Tracking:</strong> Use a spending tracker for 2 weeks to identify unnecessary expenses</li>
+                <li><strong>Priorities:</strong> Delay non-essential purchases until your budget is balanced</li>
+            </ul>
+            <p>Small changes can make a big difference - reducing spending by just N$${(deficit/4).toFixed(2)} in four areas would balance your budget!</p>`;
+            
+            tipsContent.innerHTML = tips;
+        }
+    </script>
+</body>
+</html>

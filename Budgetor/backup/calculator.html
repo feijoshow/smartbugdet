@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Calculator | NUST Smart Budget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FFD166;
+            --dark: #292F36;
+            --light: #F7FFF7;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--accent);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 300;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            perspective: 1000px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px) rotateX(5deg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 0.5rem;
+            font-size: 1.4rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+            background: #f9f9f9;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            grid-column: 1 / -1;
+        }
+        
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        #calculateBtn {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 51, 102, 0.2);
+        }
+        
+        #calculateBtn:hover {
+            background: #002244;
+            transform: translateY(-2px);
+        }
+        
+        .secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+        
+        .secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .tertiary {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        .tertiary:hover {
+            background: #e6b84c;
+        }
+        
+        .floating-icons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            opacity: 0.1;
+            color: var(--primary);
+            font-size: 1.5rem;
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+        
+        /* Custom checkbox for more visual appeal */
+        .toggle-group {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .toggle-option:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .toggle-option:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .toggle-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Budget Calculator</h1>
+        
+        <div class="calculator-grid">
+            <!-- Floating background icons -->
+            <div class="floating-icons">
+                <i class="floating-icon fas fa-wallet" style="top: 10%; left: 5%; animation-delay: 0s;"></i>
+                <i class="floating-icon fas fa-home" style="top: 30%; left: 80%; animation-delay: 2s;"></i>
+                <i class="floating-icon fas fa-bus" style="top: 70%; left: 15%; animation-delay: 4s;"></i>
+                <i class="floating-icon fas fa-utensils" style="top: 50%; left: 90%; animation-delay: 6s;"></i>
+                <i class="floating-icon fas fa-book" style="top: 85%; left: 70%; animation-delay: 8s;"></i>
+            </div>
+            
+            <!-- Income Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-money-bill-wave"></i> Income Sources</h2>
+                <label for="monthlyAllowance">Monthly Allowance (N$)</label>
+                <input type="number" id="monthlyAllowance" min="0" value="0" placeholder="e.g. 2000">
+                
+                <label for="partTimeIncome">Part-time Income (N$)</label>
+                <input type="number" id="partTimeIncome" min="0" value="0" placeholder="e.g. 1500">
+                
+                <label for="otherIncome">Other Income (N$)</label>
+                <input type="number" id="otherIncome" min="0" value="0" placeholder="e.g. 500">
+            </div>
+            
+            <!-- Accommodation Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-home"></i> Accommodation</h2>
+                <label for="accommodationType">Accommodation Type</label>
+                <select id="accommodationType">
+                    <option value="onCampus">On-Campus Residence</option>
+                    <option value="offCampus">Off-Campus Rental</option>
+                    <option value="atHome">Living at Home</option>
+                </select>
+                
+                <div id="accommodationCostFields">
+                    <label for="rent">Monthly Rent (N$)</label>
+                    <input type="number" id="rent" min="0" value="2500">
+                    
+                    <label for="utilities">Utilities (N$)</label>
+                    <input type="number" id="utilities" min="0" value="0">
+                </div>
+            </div>
+            
+            <!-- Transportation Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-car"></i> Transportation</h2>
+                <label for="transportType">Transport Method</label>
+                <select id="transportType">
+                    <option value="taxi">Taxi</option>
+                    <option value="bus">Bus</option>
+                    <option value="walking">Walking</option>
+                    <option value="ownCar">Own Car</option>
+                </select>
+                
+                <div id="transportCostFields">
+                    <label for="weeklyTrips">Weekly Trips</label>
+                    <input type="number" id="weeklyTrips" min="0" value="5">
+                    
+                    <label for="costPerTrip">Cost per Trip (N$)</label>
+                    <input type="number" id="costPerTrip" min="0" value="15" step="0.5">
+                    
+                    <div id="carFields" style="display: none;">
+                        <label for="fuelCost">Fuel Cost (N$)</label>
+                        <input type="number" id="fuelCost" min="0" value="0">
+                        
+                        <label for="carMaintenance">Maintenance (N$)</label>
+                        <input type="number" id="carMaintenance" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Food Section -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-utensils"></i> Food & Groceries</h2>
+                <label for="eatingHabits">Eating Habits</label>
+                <div class="toggle-group">
+                    <div class="toggle-option" data-value="cooking">Cook</div>
+                    <div class="toggle-option active" data-value="mixed">Mixed</div>
+                    <div class="toggle-option" data-value="eatingOut">Eat Out</div>
+                </div>
+                <select id="eatingHabits" style="display: none;">
+                    <option value="cooking">Mostly Cook at Home</option>
+                    <option value="mixed" selected>Mix of Cooking and Eating Out</option>
+                    <option value="eatingOut">Mostly Eat Out</option>
+                </select>
+                
+                <label for="weeklyGroceries">Weekly Groceries (N$)</label>
+                <input type="number" id="weeklyGroceries" min="0" value="200">
+                
+                <label for="weeklyEatingOut">Weekly Eating Out (N$)</label>
+                <input type="number" id="weeklyEatingOut" min="0" value="150">
+            </div>
+            
+            <!-- Study Expenses -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-book"></i> Study Expenses</h2>
+                <label for="booksSupplies">Books & Supplies (N$)</label>
+                <input type="number" id="booksSupplies" min="0" value="300">
+                
+                <label for="printingCosts">Printing & Stationery (N$)</label>
+                <input type="number" id="printingCosts" min="0" value="50">
+            </div>
+            
+            <!-- Personal Expenses -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-mobile-alt"></i> Personal Expenses</h2>
+                <label for="phoneData">Phone & Data (N$)</label>
+                <input type="number" id="phoneData" min="0" value="150">
+                
+                <label for="entertainment">Entertainment (N$)</label>
+                <input type="number" id="entertainment" min="0" value="200">
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="nav-buttons">
+                <button class="secondary" onclick="window.location.href='index.html'">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button id="calculateBtn">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+                <button id="saveBtn" class="tertiary" style="display:none;">
+                    <i class="fas fa-save"></i> Save Budget
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/budgetStorage.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dynamic fields
+            const accommodationType = document.getElementById('accommodationType');
+            const transportType = document.getElementById('transportType');
+            
+            // Toggle group for eating habits
+            const toggleOptions = document.querySelectorAll('.toggle-option');
+            const eatingHabitsSelect = document.getElementById('eatingHabits');
+            
+            toggleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    toggleOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update the hidden select element
+                    const value = this.getAttribute('data-value');
+                    eatingHabitsSelect.value = value;
+                });
+            });
+            
+            accommodationType.addEventListener('change', function() {
+                const rent = document.getElementById('rent');
+                const utilities = document.getElementById('utilities');
+                
+                if (this.value === 'onCampus') {
+                    rent.value = '2500';
+                    utilities.value = '0';
+                } else if (this.value === 'offCampus') {
+                    rent.value = '3500';
+                    utilities.value = '800';
+                } else {
+                    rent.value = '0';
+                    utilities.value = '0';
+                }
+            });
+            
+            transportType.addEventListener('change', function() {
+                const carFields = document.getElementById('carFields');
+                const costPerTrip = document.getElementById('costPerTrip');
+                
+                if (this.value === 'taxi') {
+                    costPerTrip.value = '15';
+                    carFields.style.display = 'none';
+                } else if (this.value === 'bus') {
+                    costPerTrip.value = '7';
+                    carFields.style.display = 'none';
+                } else if (this.value === 'ownCar') {
+                    costPerTrip.value = '0';
+                    carFields.style.display = 'block';
+                } else {
+                    costPerTrip.value = '0';
+                    carFields.style.display = 'none';
+                }
+            });
+            
+            // Calculate button
+            document.getElementById('calculateBtn').addEventListener('click', function() {
+                // Add animation to button
+                const calculateBtn = this;
+                calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+                calculateBtn.disabled = true;
+                
+                // Calculate immediately (no setTimeout delay)
+                try {
+                    const budgetData = calculateBudget();
+                    
+                    // Store results in localStorage to pass to results page
+                    localStorage.setItem('budgetResults', JSON.stringify(budgetData));
+                    
+                    // Save to history
+                    saveBudgetToHistory(budgetData);
+                    
+                    // Show save button
+                    document.getElementById('saveBtn').style.display = 'block';
+                    
+                    // Immediately redirect to results page
+                    window.location.href = 'results.html';
+                } catch (error) {
+                    console.error("Calculation error:", error);
+                    // Reset button if error occurs
+                    calculateBtn.innerHTML = '<i class="fas fa-calculator"></i> Calculate';
+                    calculateBtn.disabled = false;
+                }
+            });
+
+            // Save button
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-save"></i> Save Budget';
+                }, 2000);
+            });
+            
+            function calculateBudget() {
+                // Calculate all values
+                const monthlyAllowance = parseFloat(document.getElementById('monthlyAllowance').value) || 0;
+                const partTimeIncome = parseFloat(document.getElementById('partTimeIncome').value) || 0;
+                const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
+                const totalIncome = monthlyAllowance + partTimeIncome + otherIncome;
+                
+                const rent = parseFloat(document.getElementById('rent').value) || 0;
+                const utilities = parseFloat(document.getElementById('utilities').value) || 0;
+                const accommodationTotal = rent + utilities;
+                
+                let transportTotal = 0;
+                if (transportType.value === 'taxi' || transportType.value === 'bus') {
+                    const weeklyTrips = parseFloat(document.getElementById('weeklyTrips').value) || 0;
+                    const costPerTrip = parseFloat(document.getElementById('costPerTrip').value) || 0;
+                    transportTotal = weeklyTrips * costPerTrip * 4;
+                } else if (transportType.value === 'ownCar') {
+                    transportTotal = (parseFloat(document.getElementById('fuelCost').value) || 0) + 
+                                   (parseFloat(document.getElementById('carMaintenance').value) || 0);
+                }
+                
+                const foodTotal = ((parseFloat(document.getElementById('weeklyGroceries').value) || 0) + 
+                                  (parseFloat(document.getElementById('weeklyEatingOut').value) || 0)) * 4;
+                
+                const studyTotal = (parseFloat(document.getElementById('booksSupplies').value) || 0) + 
+                                 (parseFloat(document.getElementById('printingCosts').value) || 0);
+                
+                const personalTotal = (parseFloat(document.getElementById('phoneData').value) || 0) + 
+                                    (parseFloat(document.getElementById('entertainment').value) || 0);
+                
+                const totalExpenses = accommodationTotal + transportTotal + foodTotal + studyTotal + personalTotal;
+                const monthlyBalance = totalIncome - totalExpenses;
+                
+                return {
+                    totalIncome,
+                    totalExpenses,
+                    monthlyBalance,
+                    accommodationTotal,
+                    transportTotal,
+                    foodTotal,
+                    studyTotal,
+                    personalTotal,
+                    date: new Date()
+                };
+            }
+            // Redirect to results page
+            window.location.href = 'results.html';
+        });
+    </script>
+</body>
+</html>

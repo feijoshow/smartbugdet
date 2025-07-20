@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Dashboard | NUST Smart Budget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FFD166;
+            --dark: #292F36;
+            --light: #F7FFF7;
+            --success: #06D6A0;
+            --warning: #EF476F;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 i {
+            margin-right: 0.8rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .savings-goal {
+            background: linear-gradient(135deg, #FF9A3C 0%, #FF6B35 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.02); }
+        }
+        
+        .progress-container {
+            margin: 1.5rem 0;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            border-radius: 10px;
+            background: white;
+            transition: width 1s ease;
+        }
+        
+        .history-section {
+            margin: 2rem 0;
+        }
+        
+        .history-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .history-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .history-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .history-amount {
+            font-weight: 600;
+        }
+        
+        .savings {
+            color: var(--success);
+        }
+        
+        .deficit {
+            color: var(--warning);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #e05a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+        }
+        
+        .confetti {
+            position: fixed;
+            top: -10px;
+            animation: fall 3s linear forwards;
+            z-index: 100;
+            font-size: 1.5rem;
+        }
+        
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-tachometer-alt"></i> Budget Dashboard</h1>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div>Monthly Budgets</div>
+                <div class="metric-value" id="budgetCount">0</div>
+            </div>
+            <div class="metric-card">
+                <div>Total Saved</div>
+                <div class="metric-value savings" id="totalSaved">N$0</div>
+            </div>
+            <div class="metric-card">
+                <div>Current Goal</div>
+                <div class="metric-value" id="currentGoal">N$0</div>
+            </div>
+        </div>
+        
+        <div class="savings-goal">
+            <h2><i class="fas fa-bullseye"></i> Goal Progress</h2>
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span id="savedAmount">N$0</span>
+                    <span id="goalAmount">N$0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="goalProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            <div id="goalText">Set a savings goal to track your progress</div>
+        </div>
+        
+        <div class="history-section">
+            <h2><i class="fas fa-history"></i> Recent Budgets</h2>
+            <div id="budgetHistory"></div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="window.location.href='calculator.html'">
+                <i class="fas fa-plus"></i> New Budget
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='tips.html'">
+                <i class="fas fa-lightbulb"></i> Saving Tips
+            </button>
+        </div>
+    </div>
+
+    <script src="scripts/budgetStorage.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load and display history
+            const history = getBudgetHistory();
+            document.getElementById('budgetCount').textContent = history.length;
+            
+            // Calculate total saved
+            const totalSaved = history.reduce((sum, item) => {
+                return sum + (item.balance > 0 ? item.balance : 0);
+            }, 0);
+            document.getElementById('totalSaved').textContent = `N$${totalSaved.toFixed(2)}`;
+            
+            // Display history items
+            const historyContainer = document.getElementById('budgetHistory');
+            history.slice(0, 5).forEach(item => {
+                const element = document.createElement('div');
+                element.className = 'history-item';
+                element.innerHTML = `
+                    <div>
+                        <div class="history-date">${new Date(item.date).toLocaleDateString()}</div>
+                        <div>${item.balance >= 0 ? 'Savings' : 'Deficit'}</div>
+                    </div>
+                    <div class="history-amount ${item.balance >= 0 ? 'savings' : 'deficit'}">
+                        N$${Math.abs(item.balance).toFixed(2)}
+                    </div>
+                `;
+                historyContainer.appendChild(element);
+            });
+            
+            // Load and display goal
+            const goal = getSavingsGoal();
+            if (goal) {
+                document.getElementById('currentGoal').textContent = `N$${goal.toFixed(2)}`;
+                document.getElementById('goalAmount').textContent = `N$${goal.toFixed(2)}`;
+                document.getElementById('savedAmount').textContent = `N$${totalSaved.toFixed(2)}`;
+                
+                const progress = (totalSaved / goal) * 100;
+                document.getElementById('goalProgress').style.width = `${Math.min(progress, 100)}%`;
+                document.getElementById('goalText').innerHTML = `
+                    You've saved <strong>${progress.toFixed(1)}%</strong> of your N$${goal.toFixed(2)} goal
+                `;
+                
+                // Confetti if goal reached
+                if (totalSaved >= goal) {
+                    triggerConfetti();
+                }
+            }
+        });
+        
+        function triggerConfetti() {
+            // Create 10 confetti elements
+            for (let i = 0; i < 10; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.innerHTML = ['🎉', '💰', '🎊', '💵', '🤑'][Math.floor(Math.random() * 5)];
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                document.body.appendChild(confetti);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>

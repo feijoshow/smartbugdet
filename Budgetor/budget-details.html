@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Details | NUST Smart Budget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FFD166;
+            --dark: #292F36;
+            --light: #F7FFF7;
+            --success: #06D6A0;
+            --warning: #EF476F;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .budget-title {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .budget-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+        
+        .result-item .label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .result-item .value {
+            font-weight: 600;
+        }
+        
+        .total-card {
+            grid-column: 1 / -1;
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .total-card .label {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .total-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .savings {
+            color: var(--success);
+        }
+        
+        .deficit {
+            color: var(--warning);
+        }
+        
+        .chart-container {
+            margin: 2rem 0;
+            height: 300px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #e05a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+        
+        .budget-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .delete-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="budget-header">
+            <div>
+                <h1 class="budget-title" id="budgetTitle">Budget Details</h1>
+                <div class="budget-date" id="budgetDate"></div>
+            </div>
+            <a href="dashboard.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Budgets
+            </a>
+        </div>
+        
+        <div class="results-grid">
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="label">Monthly Income:</span>
+                    <span class="value" id="totalIncome">N$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Monthly Expenses:</span>
+                    <span class="value" id="totalExpenses">N$0.00</span>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="label">Accommodation:</span>
+                    <span class="value" id="accomTotal">N$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Transportation:</span>
+                    <span class="value" id="transportTotal">N$0.00</span>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="label">Food & Groceries:</span>
+                    <span class="value" id="foodTotal">N$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Study Expenses:</span>
+                    <span class="value" id="studyTotal">N$0.00</span>
+                </div>
+            </div>
+            
+            <div class="total-card">
+                <span class="label">Monthly Balance:</span>
+                <span class="value" id="monthlyBalance">N$0.00</span>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="expenseChart" aria-label="Expense breakdown chart"></canvas>
+        </div>
+        
+        <div class="button-group budget-actions">
+            <button class="btn btn-primary" onclick="window.location.href='calculator.html'">
+                <i class="fas fa-plus"></i> New Budget
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='budgets.html'">
+                <i class="fas fa-list"></i> All Budgets
+            </button>
+            <button class="btn delete-btn" id="deleteBudgetBtn">
+                <i class="fas fa-trash"></i> Delete Budget
+            </button>
+        </div>
+    </div>
+
+    <script src="scripts/budgetStorage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the selected budget from localStorage
+            const selectedBudget = JSON.parse(localStorage.getItem('selectedBudget'));
+            
+            if (!selectedBudget) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // Display budget details
+            document.getElementById('budgetTitle').textContent = selectedBudget.name || 'Unnamed Budget';
+            
+            const date = new Date(selectedBudget.date);
+            document.getElementById('budgetDate').textContent = date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.getElementById('totalIncome').textContent = `N$${selectedBudget.totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `N$${selectedBudget.totalExpenses.toFixed(2)}`;
+            document.getElementById('monthlyBalance').textContent = `N$${selectedBudget.monthlyBalance.toFixed(2)}`;
+            document.getElementById('accomTotal').textContent = `N$${selectedBudget.accommodationTotal.toFixed(2)}`;
+            document.getElementById('transportTotal').textContent = `N$${selectedBudget.transportTotal.toFixed(2)}`;
+            document.getElementById('foodTotal').textContent = `N$${selectedBudget.foodTotal.toFixed(2)}`;
+            document.getElementById('studyTotal').textContent = `N$${selectedBudget.studyTotal.toFixed(2)}`;
+            
+            // Style balance
+            const balanceElement = document.getElementById('monthlyBalance');
+            if (selectedBudget.monthlyBalance >= 0) {
+                balanceElement.classList.add('savings');
+            } else {
+                balanceElement.classList.add('deficit');
+            }
+            
+            // Initialize chart
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            const expenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Accommodation', 'Transportation', 'Food', 'Study', 'Personal'],
+                    datasets: [{
+                        data: [
+                            selectedBudget.accommodationTotal,
+                            selectedBudget.transportTotal,
+                            selectedBudget.foodTotal,
+                            selectedBudget.studyTotal,
+                            selectedBudget.personalTotal || 0
+                        ],
+                        backgroundColor: [
+                            '#FF6B35',
+                            '#004E89',
+                            '#FFD166',
+                            '#292F36',
+                            '#06D6A0'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20,
+                                font: {
+                                    family: 'Poppins',
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: N$${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Delete budget button
+            document.getElementById('deleteBudgetBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this budget? This action cannot be undone.')) {
+                    deleteBudget(selectedBudget.date);
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        });
+
+        function deleteBudget(budgetId) {
+            const data = getBudgetData();
+            data.budgets = data.budgets.filter(budget => budget.date !== budgetId);
+            saveBudgetData(data);
+        }
+    </script>
+</body>
+</html>
